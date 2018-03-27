@@ -31,6 +31,8 @@ For each configuration line specify:
 
 ### Configuration example
 
+**NOTE: when the extension is uninstalled, the configuration is removed from browser storage, so it's a good idea to export and save it once you have it running.**
+
 Create the following script in `/tmp/test.sh` (in real usage, this will be your scripts/program):
 
 ```

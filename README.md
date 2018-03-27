@@ -31,7 +31,7 @@ For each configuration line specify:
 
 ### Configuration example
 
-**NOTE: when the extension is uninstalled, the configuration is removed from browser storage, so it's a good idea to export and save it once you have it running.**
+**NOTE: when the extension is uninstalled, the configuration is removed from browser storage, so it's a good idea to export it to a file once you have it running.**
 
 Create the following script in `/tmp/test.sh` (in real usage, this will be your scripts/program):
 
@@ -44,7 +44,11 @@ for arg in "$@"; do
 done >> /tmp/output.txt
 
 ```
-  
+
+```
+chmod +x /tmp/test.sh
+```
+
 Save the following in `/tmp/config.json` and import it in RunWith configuration:
 
 ```

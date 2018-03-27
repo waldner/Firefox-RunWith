@@ -1,0 +1,7 @@
+{
+  "name": "runwith",
+  "description": "Example host for native messaging",
+  "path": "/path/to/runwith.py",
+  "type": "stdio",
+  "allowed_extensions": [ "runwith@runwith.runwith" ]
+}

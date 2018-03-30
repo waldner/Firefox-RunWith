@@ -65,11 +65,13 @@ notify-send "Context: $1
 ------------------------"
 ```
 
+Make it executable:
+
 ```
 chmod +x /tmp/test.sh
 ```
 
-Save the following in `/tmp/config.json` and import it in RunWith configuration:
+Save the following in `/tmp/config.json`, or use the [test_config.json](https://github.com/waldner/Firefox-RunWith/blob/master/test_config.json) file directly, and import it in RunWith configuration:
 
 ```
 {

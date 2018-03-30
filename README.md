@@ -24,8 +24,8 @@ For each configuration line specify:
 
 - The menu text for the entry (will be shown when you right-click)
 - The NM host to use. Use **`runwith`** unless you know what you're doing.
-- The context in which you want the menu entry to appear (link, selection, image)
-- The actual command you want to run. **Separate words using commas**. Use the following special words to indicate the current link, selected text or image URL respectively: **`%%LINK%%`**, **`%%SELECTION%%`**, **`%%IMAGE%%`** (only the one appropriate for the context). At runtime, the **`%%WORD%%`** will be replaced with the actual link, selection or image URL value.
+- The context in which you want the menu entry to appear: `link`, `selection`, `image`, `page`. `page` applies when none of the more-specific ones does.
+- The actual command you want to run. **Separate words using commas**. Use the following special words to indicate the current link, selected text or image URL respectively: **`%%LINK%%`**, **`%%SELECTION%%`**, **`%%IMAGE%%`** (only the one appropriate for the context). At runtime, the **`%%WORD%%`** will be replaced with the actual link, selection or image URL value. Additionally, the **`%%TAB-URL%%`** and **`TAB-TITLE`** keywords are available in all contexts, and contain, as their name implies, the current tab's URL and title.
 - Whether to run the command through a shell. This is normally needed only if you have special shell characters in the command (redirections, pipes, etc), and shouldn't be normally required.
 - Whether you want the NM host program to wait for the command to finish or not. Unless you want to run graphical or detached commands, you should check this field.
 
@@ -96,6 +96,20 @@ Save the following in `/tmp/config.json` and import it in RunWith configuration:
         ],
         "shell": false,
         "wait": true
+      },
+      {
+        "id": "3",
+        "title": "Simple page command",
+        "nmhost": "runwith",
+        "contexts": [
+          "page"
+        ],
+        "action": [
+          "/tmp/test.sh",
+          "%%TAB-TITLE%%"
+        ],
+        "shell": false,
+        "wait": true
       }
     ]
   }
@@ -104,7 +118,7 @@ Save the following in `/tmp/config.json` and import it in RunWith configuration:
 
 After importing, save the configuration.
 
-Now go to a webpage, right-click on a link, selection or image, and you should see the corresponding RunWith menu entry. If you run it, you will see our `/tmp/test.sh` being run and writing its output to `/tmp/output.txt`. Of course this is just a silly example.
+Now go to a webpage, right-click on a link, selection or image (or on any point in the page), and you should see the corresponding RunWith menu entry. If you run it, you will see our `/tmp/test.sh` being run and writing its output to `/tmp/output.txt`. Of course this is just a silly example.
 
 ## Detailed explanation
 

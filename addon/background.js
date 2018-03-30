@@ -24,29 +24,17 @@ function onNmError(error){
 
 function actionFunc(action, nmhost, context, shell, wait, info, tab){
 
-  var placeholder, value;
-
-  switch(context){
-    case "link":
-      placeholder = "%%LINK%%";
-      value = info.linkUrl;
-      break;
-
-    case "selection":
-      placeholder = "%%SELECTION%%";
-      value = info.selectionText;
-      break;
-
-    case "image":
-      placeholder = "%%IMAGE%%";
-      value = info.srcUrl;
-      break;
-  }
-
   var realAction = []
  
   action.forEach(function(act){
-    realAction.push(act.replace(placeholder, value));
+    var word = act;
+
+    word = word.replace('%%LINK%%', info.linkUrl || "");
+    word = word.replace('%%SELECTION%%', info.selectionText || "");
+    word = word.replace('%%IMAGE%%', info.srcUrl || "");
+    word = word.replace('%%TAB-URL%%', tab.url || "");
+    word = word.replace('%%TAB-TITLE%%', tab.title || "");
+    realAction.push(word);
   });
 
   var msg = {

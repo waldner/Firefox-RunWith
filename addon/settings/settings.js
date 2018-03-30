@@ -1,6 +1,6 @@
 function createTableRow(data){
 
-  var contexts = [ 'link', 'selection', 'image' ];
+  var contexts = [ 'link', 'selection', 'image', 'page' ];
 
   var tr = document.createElement('tr');
 

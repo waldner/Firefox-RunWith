@@ -1,0 +1,82 @@
+{
+  "config": {
+    "conf": [
+      {
+        "id": "0",
+        "title": "Sample test in page context",
+        "nmhost": "runwith",
+        "contexts": [
+          "page"
+        ],
+        "action": [
+          "/tmp/test.sh",
+          "page",
+          "%%LINK%%",
+          "%%SELECTION%%",
+          "%%IMAGE%%",
+          "%%TAB-URL%%",
+          "%%TAB-TITLE%%"
+        ],
+        "shell": false,
+        "wait": true
+      },
+      {
+        "id": "1",
+        "title": "Sample test in link context",
+        "nmhost": "runwith",
+        "contexts": [
+          "link"
+        ],
+        "action": [
+          "/tmp/test.sh",
+          "link",
+          "%%LINK%%",
+          "%%SELECTION%%",
+          "%%IMAGE%%",
+          "%%TAB-URL%%",
+          "%%TAB-TITLE%%"
+        ],
+        "shell": false,
+        "wait": true
+      },
+      {
+        "id": "2",
+        "title": "Sample test in selection context",
+        "nmhost": "runwith",
+        "contexts": [
+          "selection"
+        ],
+        "action": [
+          "/tmp/test.sh",
+          "selection",
+          "%%LINK%%",
+          "%%SELECTION%%",
+          "%%IMAGE%%",
+          "%%TAB-URL%%",
+          "%%TAB-TITLE%%"
+        ],
+        "shell": false,
+        "wait": true
+      },
+      {
+        "id": "3",
+        "title": "Sample test in image context",
+        "nmhost": "runwith",
+        "contexts": [
+          "image"
+        ],
+        "action": [
+          "/tmp/test.sh",
+          "image",
+          "%%LINK%%",
+          "%%SELECTION%%",
+          "%%IMAGE%%",
+          "%%TAB-URL%%",
+          "%%TAB-TITLE%%"
+        ],
+        "shell": false,
+        "wait": true
+      }
+    ]
+  }
+}

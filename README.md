@@ -8,7 +8,7 @@ Firefox webextension to run external programs on a link or selected text.
 
 - Copy or symlink [**`runwith.json`**](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.json)(the **NM manifest**) to the correct Native Messaging location for your OS; under Linux, you can use `~/.mozilla/native-messaging-hosts/runwith.json`
 
-- Copy [**`runwith.py`**](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.py) somewhere and note down the full path of wherever you put it.
+- Copy [**`runwith.py`**](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.py) somewhere and note down the full path of wherever you put it. **Make it executable (eg, `chmod +x /path/to/runwith.py`)**.
 
 - Update the **`path`** key in the **NM manifest** with the actual path to where you put **`runwith.py`**.
 

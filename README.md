@@ -33,16 +33,36 @@ For each configuration line specify:
 
 **NOTE: when the extension is uninstalled, the configuration is removed from browser storage, so it's a good idea to export it to a file once you have it running.**
 
-Create the following script in `/tmp/test.sh` (in real usage, this will be your scripts/program):
+Create the following script in `/tmp/test.sh` (in real usage, this will be your scripts/program; here we just want to demostrate what values can be accessed, so we just dump everything):
 
 ```
 #!/bin/bash
 
-# just write whatever argument we receive to a file
-for arg in "$@"; do
-  echo "-- $arg --"
-done >> /tmp/output.txt
+# write arguments to a file
 
+{
+echo "Context: --$1--"
+echo "%%LINK%%: $2--"
+echo "%%SELECTION%%: --$3--"
+echo "%%IMAGE%%: --$4--"
+echo "%%TAB-URL%%: --$5--"
+echo "%%TAB-TITLE%%: --$6--"
+echo "------------------------"
+} >> /tmp/output.txt
+```
+
+or, if you want a graphical view, you can do:
+
+```
+#!/bin/bash
+
+notify-send "Context: $1
+%%LINK%%: $2
+%%SELECTION%%: $3
+%%IMAGE%%: $4
+%%TAB-URL%%: $5
+%%TAB-TITLE%%: $6
+------------------------"
 ```
 
 ```
@@ -57,55 +77,75 @@ Save the following in `/tmp/config.json` and import it in RunWith configuration:
     "conf": [
       {
         "id": "0",
-        "title": "Sample link command",
-        "nmhost": "runwith",
-        "contexts": [
-          "link"
-        ],
-        "action": [
-          "/tmp/test.sh",
-          "%%LINK%%"
-        ],
-        "shell": false,
-        "wait": true
-      },
-      {
-        "id": "1",
-        "title": "Simple selection command",
-        "nmhost": "runwith",
-        "contexts": [
-          "selection"
-        ],
-        "action": [
-          "/tmp/test.sh",
-          "%%SELECTION%%"
-        ],
-        "shell": false,
-        "wait": true
-      },
-      {
-        "id": "2",
-        "title": "Simple image command",
-        "nmhost": "runwith",
-        "contexts": [
-          "image"
-        ],
-        "action": [
-          "/tmp/test.sh",
-          "%%IMAGE%%"
-        ],
-        "shell": false,
-        "wait": true
-      },
-      {
-        "id": "3",
-        "title": "Simple page command",
+        "title": "Sample test in page context",
         "nmhost": "runwith",
         "contexts": [
           "page"
         ],
         "action": [
           "/tmp/test.sh",
+          "page",
+          "%%LINK%%",
+          "%%SELECTION%%",
+          "%%IMAGE%%",
+          "%%TAB-URL%%",
+          "%%TAB-TITLE%%"
+        ],
+        "shell": false,
+        "wait": true
+      },
+      {
+        "id": "1",
+        "title": "Sample test in link context",
+        "nmhost": "runwith",
+        "contexts": [
+          "link"
+        ],
+        "action": [
+          "/tmp/test.sh",
+          "link",
+          "%%LINK%%",
+          "%%SELECTION%%",
+          "%%IMAGE%%",
+          "%%TAB-URL%%",
+          "%%TAB-TITLE%%"
+        ],
+        "shell": false,
+        "wait": true
+      },
+      {
+        "id": "2",
+        "title": "Sample test in selection context",
+        "nmhost": "runwith",
+        "contexts": [
+          "selection"
+        ],
+        "action": [
+          "/tmp/test.sh",
+          "selection",
+          "%%LINK%%",
+          "%%SELECTION%%",
+          "%%IMAGE%%",
+          "%%TAB-URL%%",
+          "%%TAB-TITLE%%"
+        ],
+        "shell": false,
+        "wait": true
+      },
+      {
+        "id": "3",
+        "title": "Sample test in image context",
+        "nmhost": "runwith",
+        "contexts": [
+          "image"
+        ],
+        "action": [
+          "/tmp/test.sh",
+          "image",
+          "%%LINK%%",
+          "%%SELECTION%%",
+          "%%IMAGE%%",
+          "%%TAB-URL%%",
           "%%TAB-TITLE%%"
         ],
         "shell": false,
@@ -118,7 +158,7 @@ Save the following in `/tmp/config.json` and import it in RunWith configuration:
 
 After importing, save the configuration.
 
-Now go to a webpage, right-click on a link, selection or image (or on any point in the page), and you should see the corresponding RunWith menu entry. If you run it, you will see our `/tmp/test.sh` being run and writing its output to `/tmp/output.txt`. Of course this is just a silly example.
+Now go to a webpage, right-click on a link, selection or image (or on any point in the page), and you should see the corresponding RunWith menu entry. If you run it, you will see our `/tmp/test.sh` being run and writing its output to `/tmp/output.txt` (or showing a notification popup). Of course this is just a silly example, but it demonstrates what can be accessed.
 
 ## Detailed explanation
 
@@ -145,9 +185,35 @@ A Python NM program that works the way the addon expects (**`runwith.py`**) [is 
 
 **`runwith.py`** speaks the NM protocol, it expects to receive on stdin a JSON array with the command to run and its arguments, runs the command according to the user's shell/wait preferences, then writes back (to the extension) a brief summary of the execution (in case you're interested, it can be seen in the browser console, which can be opened with CTRL+SHIFT+J, along with other debugging messages output by the [**`background.js`**](https://github.com/waldner/Firefox-RunWith/blob/master/addon/background.js) script).
 
+#### What do "`shell`" and "`wait`" do exactly?
+
+Let's assume you have a command like the following for an action in your configuration:
+
+```
+[ "yourcommand", "$foo", "bar", ">", "/tmp/a" ]
+```
+
+If `shell` is false (the recommended setting), the arguments you enter in the command configuration are passed verbatim to your code (modulo the `%%KEYWORD%%` substitutions, of course), so you can use basically any character and your program will receive it. In our example, the program will receive exactly `$foo`, `bar`, `>` and `/tmp/a` as arguments.
+
+If `shell` is true, on the other hand, what gets executed is the equivalent of:
+
+```
+sh -c "yourcommand $foo bar > /tmp/a"
+```
+
+and in this case `$foo` and `>` are interpreted by the shell. 
+
+`wait` is about waiting for the command to finish or not. If `wait` is true, `runwith.py` spawns your program and waits for it to finish, to collect its exit code and standard error (it'll be shown in the browser console). While your program is running, you'll see `runwith.py` also running in the process list. If your program has a definite lifetime (eg run, do something and terminate), it's recommended to set `wait` to true.
+
+If `wait` is false, on the other hand, your program is spawned, but `runwith.py` terminates without waiting for it. This setting is recommended for graphical programs or script where it's not known in advance how long they will run.
+
 
 ## Bugs/Limitations
 
 Only tested on Firefox under Linux.
 
 Almost certainly, the code can be improved. JS is really a shi^Wpeculiar language. Suggestions welcome.
+
+
+
+

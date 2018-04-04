@@ -88,7 +88,7 @@ function createTableRow(data){
   return tr;
 }
 
-async function populateDOM(config) {
+async function populateDOM(config, overwrite) {
 
   if (! config) {
     let backgroundPage = browser.extension.getBackgroundPage();
@@ -108,7 +108,10 @@ async function populateDOM(config) {
   mainTable.style.border = '2px solid black';
 
   mainTableHead.innerHTML = '';
-  mainTableBody.innerHTML = '';
+
+  if (overwrite) {
+    mainTableBody.innerHTML = '';
+  }
 
   mainTableHead.style.backgroundColor = 'LightGreen';
 
@@ -252,7 +255,7 @@ function collectConfig(){
     elem.contexts = contexts;
 
     // command
-    elem.action = mainTableBody.rows[row].cells[3].childNodes[0].value.split(",");
+    elem.action = mainTableBody.rows[row].cells[3].childNodes[0].value.split(/ *, */);
 
     // shell
     elem.shell = mainTableBody.rows[row].cells[4].childNodes[0].checked;
@@ -283,28 +286,33 @@ function exportConfig(config){
   document.body.removeChild(dl);
 }
 
-function importConfig(){
+function importConfig(evt){
+
+  var overwrite = true;
+  if (evt.target.id === 'importAddButton'){
+    overwrite = false;
+  }
 
   var input = document.createElement('input');
   input.type = 'file';
-  input.addEventListener("change", importFile);
+  input.addEventListener("change", function(evt){
+
+    var file = this.files[0];
+
+    var reader = new FileReader();
+    reader.onload = async function(e) {
+      try {
+        var config = JSON.parse(reader.result);
+        console.log("Will overwrite shown configuration: " + overwrite);
+        await populateDOM(config, overwrite);
+        notify('Configuration imported (not saved)');
+      } catch(e) {
+        console.log('error loading file: ' + e);
+      }
+    };
+    reader.readAsText(file);
+  });
   input.click();
-}
-
-function importFile(evt){
-  var file = this.files[0];
-
-  var reader = new FileReader();
-  reader.onload = async function(e) {
-    try {
-      var config = JSON.parse(reader.result);
-      await populateDOM(config);
-      notify('Configuration imported (not saved)');
-    } catch(e) {
-      console.log('error loading file: ' + e);
-    }
-  };
-  reader.readAsText(file);
 }
 
 function createButton(text, id, callback, submit){
@@ -333,7 +341,7 @@ function createButton(text, id, callback, submit){
 
 
 function init(){
-  populateDOM(null);
+  populateDOM(null, true);
 
   var form = document.getElementById('mainForm');
 
@@ -345,14 +353,18 @@ function init(){
   var exportButton = createButton("Export", "exportButton", function(){}, true);
   exportButton.style.marginRight = '10px';
 
-  var importButton = createButton("Import", "importButton", importConfig, false);
-  importButton.style.marginRight = '10px';
+  var importReplaceButton = createButton("Import (replace)", "importReplaceButton", importConfig, false);
+  importReplaceButton.style.marginRight = '10px';
+
+  var importAddButton = createButton("Import (add)", "importAddButton", importConfig, false);
+  importAddButton.style.marginRight = '10px';
 
   var saveButton = createButton("Save", "saveButton", function(){}, true);
 
   p.appendChild(newItemButton);
   p.appendChild(exportButton);
-  p.appendChild(importButton);
+  p.appendChild(importReplaceButton);
+  p.appendChild(importAddButton);
   p.appendChild(saveButton);
 
   form.appendChild(p);

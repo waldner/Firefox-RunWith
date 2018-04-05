@@ -15,11 +15,11 @@ function removeListener(result){
 }
 
 function onNmResponse(response){
-  console.log("NM Response: " + response);
+  console.log("NM Response: %o", response);
 }
 
 function onNmError(error){
-  console.log("NM Error: " + error);
+  console.log("NM Error: %o", error);
 }
 
 function actionFunc(action, nmhost, context, shell, wait, info, tab){
@@ -43,9 +43,9 @@ function actionFunc(action, nmhost, context, shell, wait, info, tab){
     wait: wait
   }
 
-  console.log('About to run: ' + JSON.stringify(msg));
+  console.log('About to run: %s', JSON.stringify(msg));
 
-  var sending = browser.runtime.sendNativeMessage(nmhost, JSON.stringify(msg));
+  var sending = browser.runtime.sendNativeMessage(nmhost, msg);
   sending.then(onNmResponse, onNmError);
 }
 

@@ -183,9 +183,11 @@ The important parts are the **`name`**, which uniquely identifies the NM host, t
 
 This NM manifest has to be copied or symlinked [to the correct location for your operating system](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_manifests), under Linux a suitable location is `~/.mozilla/native-messaging-hosts/<name>.json`, in our case thus `~/.mozilla/native-messaging-hosts/runwith.json`.
 
-A Python NM program that works the way the addon expects (**`runwith.py`**) [is included in the repo](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.py), so you should copy it somewhere and update its path in the NM manifest.
+A Python NM program that works the way the addon expects (**`runwith.py`**) [is included in the repo](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.py), so you should copy it somewhere and update its path in the NM manifest. It should work with Python 2 and Python 3.
 
 **`runwith.py`** speaks the NM protocol, it expects to receive on stdin a JSON array with the command to run and its arguments, runs the command according to the user's shell/wait preferences, then writes back (to the extension) a brief summary of the execution (in case you're interested, it can be seen in the browser console, which can be opened with CTRL+SHIFT+J, along with other debugging messages output by the [**`background.js`**](https://github.com/waldner/Firefox-RunWith/blob/master/addon/background.js) script).
+
+Inside `runwith.py`, you can set the **`enable_debug`** variable to `True` to dump the various incoming and outgoing messages it processes to a file (by default, `/tmp/runwith_debug.log`, see the `debug_file` variable).
 
 #### What do "`shell`" and "`wait`" do exactly?
 

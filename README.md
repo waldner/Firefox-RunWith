@@ -6,11 +6,40 @@ Firefox webextension to run external programs on a link or selected text.
 
 - Download and install the extension from [https://addons.mozilla.org/en-US/firefox/addon/run-with/](https://addons.mozilla.org/en-US/firefox/addon/run-with/) or from [the releases page](https://github.com/waldner/Firefox-RunWith/releases).
 
-- Copy or symlink [**`runwith.json`**](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.json)(the **NM manifest**) to the correct Native Messaging location for your OS; under Linux, you can use `~/.mozilla/native-messaging-hosts/runwith.json`
+- Copy or symlink [**`runwith.json`**](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.json)(the **NM manifest**) to the correct [Native Messaging manifest location for your OS](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_manifests); under Linux, you can use `~/.mozilla/native-messaging-hosts/runwith.json`. Under Windows, you mst create a registry key `HKEY_CURRENT_USER\SOFTWARE\Mozilla\NativeMessagingHosts\runwith`, whose value must be a `REG_SZ` containing the path to where you saved **`runwith.json`**. Save the following to a `.reg` file and import it:
+
+```
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\SOFTWARE\Mozilla\NativeMessagingHosts\runwith]
+@="C:\\path\\to\\runwith.json"
+```
 
 - Copy [**`runwith.py`**](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.py) somewhere and note down the full path of wherever you put it. **Make it executable (eg, `chmod +x /path/to/runwith.py`)**.
 
-- Update the **`path`** key in the **NM manifest** with the actual path to where you put **`runwith.py`**.
+- (Windows only) Create the file `runwith.bat` with the following contents:
+
+```
+@echo off
+
+python -u "c:\\path\\to\\runwith.py"
+
+```
+
+(or use `py` if you have the python launcher installed)
+
+
+- **Linux**: Update the **`path`** key in the **NM manifest** with the actual path to where you put **`runwith.py`**. **Windows**: update the **`path`** key in the **NM manifest** with the actual path to where you put **`runwith.bat`**. Example (Linux):
+
+```
+  "path": "/path/to/runwith.py",
+```
+
+Example (Windows):
+
+```
+  "path": "c:\\path\\to\\runwith.bat",
+```
 
 - Configure the plugin by going to `about:addons` -> extensions -> RunWith -> Preferences. See below.
 
@@ -71,96 +100,31 @@ Make it executable:
 chmod +x /tmp/test.sh
 ```
 
-Save the following in `/tmp/config.json`, or use the [test_config.json](https://github.com/waldner/Firefox-RunWith/blob/master/test_config.json) file directly, and import it in RunWith configuration:
+Under Windows, install [notify-send for Windows](http://vaskovsky.net/notify-send/) and create the following **`C:\test.bat`** program:
 
 ```
-{
-  "config": {
-    "conf": [
-      {
-        "id": "0",
-        "title": "Sample test in page context",
-        "nmhost": "runwith",
-        "contexts": [
-          "page"
-        ],
-        "action": [
-          "/tmp/test.sh",
-          "page",
-          "%%LINK%%",
-          "%%SELECTION%%",
-          "%%IMAGE%%",
-          "%%TAB-URL%%",
-          "%%TAB-TITLE%%"
-        ],
-        "shell": false,
-        "wait": true
-      },
-      {
-        "id": "1",
-        "title": "Sample test in link context",
-        "nmhost": "runwith",
-        "contexts": [
-          "link"
-        ],
-        "action": [
-          "/tmp/test.sh",
-          "link",
-          "%%LINK%%",
-          "%%SELECTION%%",
-          "%%IMAGE%%",
-          "%%TAB-URL%%",
-          "%%TAB-TITLE%%"
-        ],
-        "shell": false,
-        "wait": true
-      },
-      {
-        "id": "2",
-        "title": "Sample test in selection context",
-        "nmhost": "runwith",
-        "contexts": [
-          "selection"
-        ],
-        "action": [
-          "/tmp/test.sh",
-          "selection",
-          "%%LINK%%",
-          "%%SELECTION%%",
-          "%%IMAGE%%",
-          "%%TAB-URL%%",
-          "%%TAB-TITLE%%"
-        ],
-        "shell": false,
-        "wait": true
-      },
-      {
-        "id": "3",
-        "title": "Sample test in image context",
-        "nmhost": "runwith",
-        "contexts": [
-          "image"
-        ],
-        "action": [
-          "/tmp/test.sh",
-          "image",
-          "%%LINK%%",
-          "%%SELECTION%%",
-          "%%IMAGE%%",
-          "%%TAB-URL%%",
-          "%%TAB-TITLE%%"
-        ],
-        "shell": false,
-        "wait": true
-      }
-    ]
-  }
-}
+@echo off
+set context=%1
+set link=%2
+set selection=%3
+set image=%4
+set taburl=%5
+set tabtitle=%6
+
+echo Context is "%context%"
+
+set line=Context: -%context%-, link: -%link%-, selection: -%selection%-, image: -%image%-, taburl: -%taburl%-, tabtitle: -%tabtitle%-
+
+notify-send.exe "SUMMARY" %line%
+
 ```
+
+
+Save [test_config.json](https://github.com/waldner/Firefox-RunWith/blob/master/test_config.json) (Linux) or [test_config_win.json](https://github.com/waldner/Firefox-RunWith/blob/master/test_config_win.json), and import it in RunWith configuration.
 
 After importing, save the configuration.
 
-Now go to a webpage, right-click on a link, selection or image (or on any point in the page), and you should see the corresponding RunWith menu entry. If you run it, you will see our `/tmp/test.sh` being run and writing its output to `/tmp/output.txt` (or showing a notification popup). Of course this is just a silly example, but it demonstrates what can be accessed.
+Now go to a webpage, right-click on a link, selection or image (or on any point in the page), and you should see the corresponding RunWith menu entry. If you run it, you will see our test program being run and writing its output to `/tmp/output.txt` (or showing a notification popup, for notify-send). Of course this is just a silly example, but it demonstrates what can be accessed.
 
 ## Detailed explanation
 
@@ -181,9 +145,9 @@ WebExtensions provide a mechanism called [Native messaging](https://developer.mo
 
 The important parts are the **`name`**, which uniquely identifies the NM host, the **`path`**, which points to the program that will be run by the browser to exchange NM messages, and the **`allowed_extensions`** which tells the NM host which extensions are allowed to talk to it (extensions are identified by their ID).
 
-This NM manifest has to be copied or symlinked [to the correct location for your operating system](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_manifests), under Linux a suitable location is `~/.mozilla/native-messaging-hosts/<name>.json`, in our case thus `~/.mozilla/native-messaging-hosts/runwith.json`.
+This NM manifest has to be copied or symlinked [to the correct location for your operating system](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_manifests), under Linux a suitable location is `~/.mozilla/native-messaging-hosts/<name>.json`, in our case thus `~/.mozilla/native-messaging-hosts/runwith.json`. Under Windows, a registry key must be created whose value is the location of the NM manifest (see above for an example).
 
-A Python NM program that works the way the addon expects (**`runwith.py`**) [is included in the repo](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.py), so you should copy it somewhere and update its path in the NM manifest. It should work with Python 2 and Python 3.
+A Python NM program that works the way the addon expects (**`runwith.py`**) [is included in the repo](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.py), so you should copy it somewhere and update its path in the NM manifest. It should work with Python 2 and Python 3. Under Windows, it's necessary to create an extra `.bat` file that in turn calls `runwith.py`, and reference the `.bat` file in the NM manifest. If someone knows how to use `runwith.py` directly in the NM manifest under Windows, let me know.
 
 **`runwith.py`** speaks the NM protocol, it expects to receive on stdin a JSON array with the command to run and its arguments, runs the command according to the user's shell/wait preferences, then writes back (to the extension) a brief summary of the execution (in case you're interested, it can be seen in the browser console, which can be opened with CTRL+SHIFT+J, along with other debugging messages output by the [**`background.js`**](https://github.com/waldner/Firefox-RunWith/blob/master/addon/background.js) script).
 
@@ -205,7 +169,7 @@ If `shell` is true, on the other hand, what gets executed is the equivalent of:
 sh -c "yourcommand $foo bar > /tmp/a"
 ```
 
-and in this case `$foo` and `>` are interpreted by the shell. 
+and in this case `$foo` and `>` are interpreted by the shell. **NOTE**: I have no idea what "shell" does under Windows.
 
 `wait` is about waiting for the command to finish or not. If `wait` is true, `runwith.py` spawns your program and waits for it to finish, to collect its exit code and standard error (it'll be shown in the browser console). While your program is running, you'll see `runwith.py` also running in the process list. If your program has a definite lifetime (eg run, do something and terminate), it's recommended to set `wait` to true.
 
@@ -214,10 +178,7 @@ If `wait` is false, on the other hand, your program is spawned, but `runwith.py`
 
 ## Bugs/Limitations
 
-Only tested on Firefox under Linux.
+Only tested on Firefox under Linux, partially under Windows.
 
 Almost certainly, the code can be improved. JS is really a shi^Wpeculiar language. Suggestions welcome.
-
-
-
 

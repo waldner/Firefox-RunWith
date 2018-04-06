@@ -1,0 +1,82 @@
+{
+  "config": {
+    "conf": [
+      {
+        "id": "0",
+        "title": "Sample test in page context",
+        "nmhost": "runwith",
+        "contexts": [
+          "page"
+        ],
+        "action": [
+          "C:\\test.bat",
+          "page",
+          "%%LINK%%",
+          "%%SELECTION%%",
+          "%%IMAGE%%",
+          "%%TAB-URL%%",
+          "%%TAB-TITLE%%"
+        ],
+        "shell": false,
+        "wait": true
+      },
+      {
+        "id": "1",
+        "title": "Sample test in link context",
+        "nmhost": "runwith",
+        "contexts": [
+          "link"
+        ],
+        "action": [
+          "C:\\test.bat",
+          "link",
+          "%%LINK%%",
+          "%%SELECTION%%",
+          "%%IMAGE%%",
+          "%%TAB-URL%%",
+          "%%TAB-TITLE%%"
+        ],
+        "shell": false,
+        "wait": true
+      },
+      {
+        "id": "2",
+        "title": "Sample test in selection context",
+        "nmhost": "runwith",
+        "contexts": [
+          "selection"
+        ],
+        "action": [
+          "C:\\test.bat",
+          "selection",
+          "%%LINK%%",
+          "%%SELECTION%%",
+          "%%IMAGE%%",
+          "%%TAB-URL%%",
+          "%%TAB-TITLE%%"
+        ],
+        "shell": false,
+        "wait": true
+      },
+      {
+        "id": "3",
+        "title": "Sample test in image context",
+        "nmhost": "runwith",
+        "contexts": [
+          "image"
+        ],
+        "action": [
+          "C:\\test.bat",
+          "image",
+          "%%LINK%%",
+          "%%SELECTION%%",
+          "%%IMAGE%%",
+          "%%TAB-URL%%",
+          "%%TAB-TITLE%%"
+        ],
+        "shell": false,
+        "wait": true
+      }
+    ]
+  }
+}

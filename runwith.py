@@ -20,7 +20,7 @@ def getMessage():
       sys.exit(0)
   messageLength = struct.unpack('@I', rawLength)[0]
   debug("getMessage: messageLength is %s" % messageLength)
-  message = our_stdin.read(messageLength).decode()
+  message = our_stdin.read(messageLength).decode('utf-8')
   debug("getMessage: message is %s" % message)
   return json.loads(message)
 

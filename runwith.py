@@ -4,6 +4,8 @@
 # in order to ensure that stdin and stdout are opened in binary, rather
 # than text, mode.
 
+# encoding=utf8
+
 import sys, json, struct, os
 import subprocess
 

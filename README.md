@@ -4,6 +4,8 @@ Firefox webextension to run external programs on a link or selected text.
 
 ## Getting started
 
+*NOTE: If you're upgrading from v0.14, along with the extension you also need to update `runwith.py` in whatever location you had it (if you were using it in the first place, that is).*
+
 - Download and install the extension from [https://addons.mozilla.org/en-US/firefox/addon/run-with/](https://addons.mozilla.org/en-US/firefox/addon/run-with/) or from [the releases page](https://github.com/waldner/Firefox-RunWith/releases).
 
 - Copy or symlink [**`runwith.json`**](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.json)(the **NM manifest**) to the correct [Native Messaging manifest location for your OS](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_manifests); under Linux, you can use `~/.mozilla/native-messaging-hosts/runwith.json`. Under Windows, you mst create a registry key `HKEY_CURRENT_USER\SOFTWARE\Mozilla\NativeMessagingHosts\runwith`, whose value must be a `REG_SZ` containing the path to where you saved **`runwith.json`**. Save the following to a `.reg` file and import it:

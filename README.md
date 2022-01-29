@@ -53,10 +53,10 @@ For each configuration line specify:
 
 - The menu text for the entry (will be shown when you right-click)
 - The NM host to use. Use **`runwith`** unless you know what you're doing.
-- The context in which you want the menu entry to appear: `link`, `selection`, `image`, `page`. `page` applies when none of the more-specific ones does.
+- The context in which you want the menu entry to appear: `link`, `selection`, `image`, `editable`, `page`. `page` applies when none of the more-specific ones does.
 - The actual command you want to run. **Separate words using commas**. Use the following special words to indicate the current link, selected text or image URL respectively: **`%%LINK%%`**, **`%%SELECTION%%`**, **`%%IMAGE%%`** (only the one appropriate for the context). At runtime, the **`%%WORD%%`** will be replaced with the actual link, selection or image URL value. Additionally, the **`%%TAB-URL%%`** and **`TAB-TITLE`** keywords are available in all contexts, and contain, as their name implies, the current tab's URL and title.
 - Whether to run the command through a shell. This is normally needed only if you have special shell characters in the command (redirections, pipes, etc), and shouldn't be normally required.
-- Whether you want the NM host program to wait for the command to finish or not. Unless you want to run graphical or detached commands, you should check this field.
+- Whether you want the NM host program to wait for the command to finish or not. Unless you want to run graphical or detached commands, you should check this field. If the context is `editable`, this valued is ignored, as we must always wait for the command to complete to capture the output to send to the editable.
 
 ### Configuration example
 
@@ -67,7 +67,11 @@ Create the following script in `/tmp/test.sh` (in real usage, this will be your 
 ```
 #!/bin/bash
 
-# write arguments to a file
+# write arguments to stdout or a file
+
+if [ "$1" = "editable" ]; then
+  echo "OUTPUT FOR EDITABLE FIELD"
+fi
 
 {
 echo "Context: --$1--"
@@ -84,6 +88,10 @@ or, if you want a graphical view, you can do:
 
 ```
 #!/bin/bash
+
+if [ "$1" = "editable" ]; then
+  echo "OUTPUT FOR EDITABLE FIELD"
+fi
 
 notify-send "Context: $1
 %%LINK%%: $2
@@ -115,16 +123,17 @@ echo Context is "%context%"
 
 set line=Context: -%context%-, link: -%link%-, selection: -%selection%-, image: -%image%-, taburl: -%taburl%-, tabtitle: -%tabtitle%-
 
+if %context% == editable echo OUTPUT FOR EDITABLE FIELD
+
 notify-send.exe "SUMMARY" %line%
 
 ```
-
 
 Save [test_config.json](https://github.com/waldner/Firefox-RunWith/blob/master/test_config.json) (Linux) or [test_config_win.json](https://github.com/waldner/Firefox-RunWith/blob/master/test_config_win.json), and import it in RunWith configuration.
 
 After importing, save the configuration.
 
-Now go to a webpage, right-click on a link, selection or image (or on any point in the page), and you should see the corresponding RunWith menu entry. If you run it, you will see our test program being run and writing its output to `/tmp/output.txt` (or showing a notification popup, for notify-send). Of course this is just a silly example, but it demonstrates what can be accessed.
+Now go to a webpage, right-click on a link, selection or image (or on any point in the page), and you should see the corresponding RunWith menu entry. If you run it, you will see our test program being run and either writing its output to the editable focused field, the file `/tmp/output.txt`, or showing a notification popup, for notify-send. Of course this is just a silly example, but it demonstrates what can be accessed.
 
 ## Detailed explanation
 
@@ -171,7 +180,7 @@ sh -c "yourcommand $foo bar > /tmp/a"
 
 and in this case `$foo` and `>` are interpreted by the shell. **NOTE**: I have no idea what "shell" does under Windows.
 
-`wait` is about waiting for the command to finish or not. If `wait` is true, `runwith.py` spawns your program and waits for it to finish, to collect its exit code and standard error (it'll be shown in the browser console). While your program is running, you'll see `runwith.py` also running in the process list. If your program has a definite lifetime (eg run, do something and terminate), it's recommended to set `wait` to true.
+`wait` is about waiting for the command to finish or not. If `wait` is true, `runwith.py` spawns your program and waits for it to finish, to collect its exit code and standard error (it'll be shown in the browser console). While your program is running, you'll see `runwith.py` also running in the process list. If your program has a definite lifetime (eg run, do something and terminate), it's recommended to set `wait` to true. If running a command in the `editable` context, wait is always true.
 
 If `wait` is false, on the other hand, your program is spawned, but `runwith.py` terminates without waiting for it. This setting is recommended for graphical programs or script where it's not known in advance how long they will run.
 

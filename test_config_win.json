@@ -76,6 +76,25 @@
         ],
         "shell": false,
         "wait": true
+      },
+      {
+        "id": "4",
+        "title": "Sample test in editable context",
+        "nmhost": "runwith",
+        "contexts": [
+          "editable"
+        ],
+        "action": [
+          "C:\\test.bat",
+          "editable",
+          "%%LINK%%",
+          "%%SELECTION%%",
+          "%%IMAGE%%",
+          "%%TAB-URL%%",
+          "%%TAB-TITLE%%"
+        ],
+        "shell": false,
+        "wait": true
       }
     ]
   }

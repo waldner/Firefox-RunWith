@@ -37,6 +37,10 @@ function actionFunc(action, nmhost, context, shell, wait, info, tab){
     realAction.push(word);
   });
 
+  if (context == "editable") {
+    wait = true;
+  }
+
   var msg = {
     cmd: realAction,
     shell: shell,
@@ -44,9 +48,16 @@ function actionFunc(action, nmhost, context, shell, wait, info, tab){
   }
 
   console.log('About to run: %s', JSON.stringify(msg));
-
   var sending = browser.runtime.sendNativeMessage(nmhost, msg);
-  sending.then(onNmResponse, onNmError);
+  sending.then(function(response){
+    if (context == "editable") {
+      let stdout = response.stdout;
+      stdout.replace(/\n+$/, "")
+      browser.tabs.sendMessage(tab.id, {text: stdout, elementId: info.targetElementId});
+    }
+    onNmResponse(response)
+  }, onNmError);
+
 }
 
 function createMenuItem(item){

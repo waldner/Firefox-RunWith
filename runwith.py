@@ -90,8 +90,10 @@ if wait:
   exit_code = proc.returncode
   msg['exit-status'] = exit_code
   msg['stderr'] = stderr.decode()
+  msg['stdout'] = stdout.decode()
 else:
   msg['exit-status'] = 'N/A'
   msg['stderr'] = 'N/A'
+  msg['stdout'] = 'N/A'
 
 sendMessage(encodeMessage(msg))

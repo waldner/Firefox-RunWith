@@ -2,11 +2,11 @@
   "manifest_version": 2,
   "name": "RunWith",
   "description": "Run external commands on contextual elements",
-  "version": "0.14",
+  "version": "0.15",
   "applications": {
     "gecko": {
       "id": "run@runwith.run",
-      "strict_min_version": "56.0a1"
+      "strict_min_version": "90.0"
     }
   },
   "background": {
@@ -14,6 +14,13 @@
       "background.js"
     ]
   },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "all_frames": true,
+      "js": ["contentscript.js"]
+    }
+  ],
   "options_ui": {
     "page": "settings/settings.html",
     "browser_style": true

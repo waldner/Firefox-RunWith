@@ -61,12 +61,24 @@ function actionFunc(action, nmhost, context, shell, wait, info, tab){
 }
 
 function createMenuItem(item){
-  var id = browser.menus.create({
+
+  var menuProps = {
     id: item.id,
     title: item.title,
     contexts: item.contexts,
-  });
+  }
 
+  if (item.documentUrlPatterns) {
+    menuProps.documentUrlPatterns = item.documentUrlPatterns;
+  }
+
+  if (item.contexts[0] == "link" || item.contexts[0] == "image") {
+    if (item.targetUrlPatterns) {
+      menuProps.targetUrlPatterns = item.targetUrlPatterns;
+    }
+  }
+
+  var id = browser.menus.create(menuProps);
   return id;
 }
 

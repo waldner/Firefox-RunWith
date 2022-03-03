@@ -21,6 +21,9 @@ function createTableRow(data){
   input.style.width = '100%';
    if (data) {
     input.value = data.nmhost;
+    if (input.value == null || input.value == "") {
+      input.value = "runwith";
+    }
   }
   input.placeholder = 'NM Host';
   input.required = true;
@@ -47,6 +50,37 @@ function createTableRow(data){
     select.appendChild(option);
   }
   tr.insertCell().appendChild(select);
+
+  var input = document.createElement('input');
+  input.type = 'text';
+  input.name = 'document_urls';
+  input.style.width = '100%';
+  if (data) {
+    if (data.documentUrlPatterns == null || data.documentUrlPatterns == "") {
+      input.value = "<all_urls>";
+    } else {
+      input.value = data.documentUrlPatterns;
+    }
+  }
+  input.placeholder = 'Document URL patterns (optional)';
+  input.required = false;
+  tr.insertCell().appendChild(input);
+
+  var input = document.createElement('input');
+  input.type = 'text';
+  input.name = 'target_urls';
+  input.style.width = '100%';
+  if (data) {
+    input.value = data.targetUrlPatterns;
+    if (data.targetUrlPatterns == null || data.targetUrlPatterns == "") {
+      input.value = "<all_urls>";
+    } else {
+      input.value = data.targetUrlPatterns;
+    }
+  }
+  input.placeholder = 'Target URL patterns (optional)';
+  input.required = false;
+  tr.insertCell().appendChild(input);
 
   var input = document.createElement('input');
   input.type = 'text';
@@ -79,7 +113,7 @@ function createTableRow(data){
   }
   tr.insertCell().appendChild(input);
 
-  var deleteButton = createButton("Delete", "deleteButton", function(){
+  var deleteButton = createButton("Del", "deleteButton", function(){
     deleteRow(tr)
   }, false);
 
@@ -100,7 +134,7 @@ async function populateDOM(config, overwrite) {
   console.log('conf is: ' + JSON.stringify(conf));
 
   var mainTable = document.getElementById('mainTable');
-  mainTable.style.width = "90%"; 
+  mainTable.style.width = "200%"; 
 
   var mainTableHead = document.getElementById('mainTableHead');
   var mainTableBody = document.getElementById('mainTableBody');
@@ -119,7 +153,7 @@ async function populateDOM(config, overwrite) {
   var tr = mainTableHead.insertRow();
 
   tr.style.fontWeight = 'bold';
-  tr.style.fontSize = '120%';
+  tr.style.fontSize = '100%';
 
   var cell = tr.insertCell();
   cell.style.width = "15%";
@@ -127,34 +161,44 @@ async function populateDOM(config, overwrite) {
   cell.appendChild(document.createTextNode('Menu title'));
 
   var cell = tr.insertCell();
-  cell.style.width = "10%";
+  cell.style.width = "7%";
   cell.align = "center";
   cell.appendChild(document.createTextNode('NM host'));
 
   var cell = tr.insertCell();
-  cell.style.width = "13%";
+  cell.style.width = "9%";
   cell.align = "center";
   cell.appendChild(document.createTextNode('Context'));
 
   var cell = tr.insertCell();
-  cell.style.width = "45%";
+  cell.style.width = "18%";
+  cell.align = "center";
+  cell.appendChild(document.createTextNode('Document URLs'));
+
+  var cell = tr.insertCell();
+  cell.style.width = "18%";
+  cell.align = "center";
+  cell.appendChild(document.createTextNode('Target URLs'));
+
+  var cell = tr.insertCell();
+  cell.style.width = "40%";
   cell.align = "center";
   cell.appendChild(document.createTextNode('Command'));
 
   var cell = tr.insertCell();
-  cell.style.width = "5%";
+  cell.style.width = "3%";
   cell.align = "center";
   cell.appendChild(document.createTextNode('Shell'));
 
   var cell = tr.insertCell();
-  cell.style.width = "5%";
+  cell.style.width = "3%";
   cell.align = "center";
   cell.appendChild(document.createTextNode('Wait'));
 
   var cell = tr.insertCell();
-  cell.style.width = "7%";
+  cell.style.width = "3%";
   cell.align = "center";
-  cell.appendChild(document.createTextNode('Delete'));
+  cell.appendChild(document.createTextNode('Del'));
 
   for (var i = 0; i < conf.conf.length; i++) {
     var tr = createTableRow(conf.conf[i]);
@@ -215,6 +259,7 @@ async function saveOrExportConfig(e){
     notify('Configuration saved');
   }
 
+  populateDOM(config, true);
   // You must return false to prevent the default form behavior
   return false;
 }
@@ -254,14 +299,28 @@ function collectConfig(){
     }
     elem.contexts = contexts;
 
+    // documentUrlPatterns
+    if (mainTableBody.rows[row].cells[3].childNodes[0].value == "") {
+      elem.documentUrlPatterns = ["<all_urls>"];
+    } else {
+      elem.documentUrlPatterns = mainTableBody.rows[row].cells[3].childNodes[0].value.split(/ *, */);
+    }
+
+    // targetUrlPatterns
+    if (mainTableBody.rows[row].cells[4].childNodes[0].value == "") {
+      elem.targetUrlPatterns = ["<all_urls>"];
+    } else {
+      elem.targetUrlPatterns = mainTableBody.rows[row].cells[4].childNodes[0].value.split(/ *, */);
+    }
+
     // command
-    elem.action = mainTableBody.rows[row].cells[3].childNodes[0].value.split(/ *, */);
+    elem.action = mainTableBody.rows[row].cells[5].childNodes[0].value.split(/ *, */);
 
     // shell
-    elem.shell = mainTableBody.rows[row].cells[4].childNodes[0].checked;
+    elem.shell = mainTableBody.rows[row].cells[6].childNodes[0].checked;
 
     // wait
-    elem.wait = mainTableBody.rows[row].cells[5].childNodes[0].checked;
+    elem.wait = mainTableBody.rows[row].cells[7].childNodes[0].checked;
 
     config.config.conf.push(elem);
   }

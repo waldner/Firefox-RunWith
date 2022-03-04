@@ -8,7 +8,7 @@ function createTableRow(data){
   input.type = 'text';
   input.name = 'menu_title';
   input.style.width = '100%';
-  if (data) {
+  if (data && (!(data.title == null || data.title == ""))) {
     input.value = data.title;
   }
   input.placeholder = 'Menu text';
@@ -19,11 +19,9 @@ function createTableRow(data){
   input.type = 'text';
   input.name = 'nm_host';
   input.style.width = '100%';
-   if (data) {
+  input.value = "runwith";
+  if (data && (!(data.nmhost == null || data.nmhost == ""))) {
     input.value = data.nmhost;
-    if (input.value == null || input.value == "") {
-      input.value = "runwith";
-    }
   }
   input.placeholder = 'NM Host';
   input.required = true;
@@ -55,12 +53,9 @@ function createTableRow(data){
   input.type = 'text';
   input.name = 'document_urls';
   input.style.width = '100%';
-  if (data) {
-    if (data.documentUrlPatterns == null || data.documentUrlPatterns == "") {
-      input.value = "<all_urls>";
-    } else {
-      input.value = data.documentUrlPatterns;
-    }
+  input.value = "<all_urls>";
+  if (data && (!(data.documentUrlPatterns == null || data.documentUrlPatterns == ""))) {
+    input.value = data.documentUrlPatterns;
   }
   input.placeholder = 'Document URL patterns (optional)';
   input.required = false;
@@ -70,13 +65,9 @@ function createTableRow(data){
   input.type = 'text';
   input.name = 'target_urls';
   input.style.width = '100%';
-  if (data) {
+  input.value = "<all_urls>";
+  if (data && (!(data.targetUrlPatterns == null || data.targetUrlPatterns == ""))) {
     input.value = data.targetUrlPatterns;
-    if (data.targetUrlPatterns == null || data.targetUrlPatterns == "") {
-      input.value = "<all_urls>";
-    } else {
-      input.value = data.targetUrlPatterns;
-    }
   }
   input.placeholder = 'Target URL patterns (optional)';
   input.required = false;

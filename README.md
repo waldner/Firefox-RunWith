@@ -47,7 +47,7 @@ Example (Windows):
 
 - Save the configuration.
 
-- Right click on a hyperlink, selected text or image and (depending on the actual context) see the RunWith menu with the entries you configured in the previous step.
+- Right click on a hyperlink, selected text, tab or image and (depending on the actual context) see the RunWith menu with the entries you configured in the previous step.
 
 ## Configuration
 
@@ -57,8 +57,8 @@ For each configuration line specify:
 - The NM host to use. Use **`runwith`** unless you know what you're doing.
 - The context in which you want the menu entry to appear: `link`, `selection`, `image`, `editable`, `page`. `page` applies when none of the more-specific ones does.
 - (Optional) The [documentUrlPatterns](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns), comma separated, where you want the menu to be shown; this refers to the document URL, ie the URL you see in the browser's address bar. By default, all URLs are enabled; in match pattern syntax, this means the value is `<all_urls>`.
-- (Optional) The [targetUrlPatterns](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns), comma separated, for which you want the menu to be shown; this applies only to the `link` and `image` contexts, and refers to the link target or image source respectively. It is ignored for other contexts. By default, all URLs are enabled; in match pattern syntax, this means the value is `<all_urls>`.
-- The actual command you want to run. **Separate words using commas**. Use the following special words to indicate the current link, selected text or image URL respectively: **`%%LINK%%`**, **`%%SELECTION%%`**, **`%%IMAGE%%`** (only the one appropriate for the context). At runtime, the **`%%WORD%%`** will be replaced with the actual link, selection or image URL value. Additionally, the **`%%TAB-URL%%`** and **`TAB-TITLE`** keywords are available in all contexts, and contain, as their name implies, the current tab's URL and title.
+- (Optional) The [targetUrlPatterns](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns), comma separated, for which you want the menu to be shown; this applies only to the `link`, `image` and `tab` contexts, and refers to the link target, image source and tab URL respectively. It is ignored for other contexts. By default, all URLs are enabled; in match pattern syntax, this means the value is `<all_urls>`.
+- The actual command you want to run. **Separate words using commas**. Use the following special words to indicate the current link, selected text and image URL respectively: **`%%LINK%%`**, **`%%SELECTION%%`**, **`%%IMAGE%%`** (only the one appropriate for the context). At runtime, the **`%%WORD%%`** will be replaced with the actual link, selection or image URL value. Additionally, the **`%%TAB-URL%%`** and **`%%TAB-TITLE%%`** keywords are available in all contexts, and contain, as their name implies, the current tab's URL and title.
 - Whether to run the command through a shell. This is normally needed only if you have special shell characters in the command (redirections, pipes, etc), and shouldn't be normally required.
 - Whether you want the NM host program to wait for the command to finish or not. Unless you want to run graphical or detached commands, you should check this field. If the context is `editable`, this valued is ignored, as we must always wait for the command to complete to capture the output to send to the editable.
 

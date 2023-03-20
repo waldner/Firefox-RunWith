@@ -1,6 +1,6 @@
 function createTableRow(data){
 
-  var contexts = [ 'link', 'selection', 'image', 'editable', 'page' ];
+  var contexts = [ 'link', 'selection', 'image', 'editable', 'tab', 'page' ];
 
   var tr = document.createElement('tr');
 
@@ -27,7 +27,7 @@ function createTableRow(data){
   input.required = true;
   tr.insertCell().appendChild(input);
 
-  var select = document.createElement('select');    
+  var select = document.createElement('select');
   select.require = true;
   select.style.width = '100%';
   select.className = "browser-style";

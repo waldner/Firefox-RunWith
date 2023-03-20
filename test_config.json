@@ -95,6 +95,25 @@
         ],
         "shell": false,
         "wait": true
+      },
+      {
+        "id": "5",
+        "title": "Sample test in tab context",
+        "nmhost": "runwith",
+        "contexts": [
+          "tab"
+        ],
+        "action": [
+          "/tmp/test.sh",
+          "tab",
+          "%%LINK%%",
+          "%%SELECTION%%",
+          "%%IMAGE%%",
+          "%%TAB-URL%%",
+          "%%TAB-TITLE%%"
+        ],
+        "shell": false,
+        "wait": true
       }
     ]
   }

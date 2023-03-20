@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "RunWith",
   "description": "Run external commands on contextual elements",
-  "version": "0.17",
+  "version": "0.18",
   "applications": {
     "gecko": {
       "id": "run@runwith.run",

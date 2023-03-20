@@ -73,6 +73,7 @@ function createMenuItem(item){
   }
 
   if (item.contexts[0] == "link" || item.contexts[0] == "image") {
+    console.log("targetUrlPatterns " + item.targetUrlPatterns);
     if (item.targetUrlPatterns) {
       menuProps.targetUrlPatterns = item.targetUrlPatterns;
     }

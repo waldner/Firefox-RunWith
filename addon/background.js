@@ -22,18 +22,26 @@ function onNmError(error){
   console.log("NM Error: %o", error);
 }
 
-function actionFunc(action, nmhost, context, shell, wait, info, tab){
+function actionFunc(action, nmhost, context, shell, wait, info, tab, evt){
 
-  var realAction = []
+  console.log("actionFunc being invoked with context " + context + " and evt: " + evt);
+
+  var realAction = [];
  
   action.forEach(function(act){
     var word = act;
 
-    word = word.replace('%%LINK%%', info.linkUrl || "");
-    word = word.replace('%%SELECTION%%', info.selectionText || "");
-    word = word.replace('%%IMAGE%%', info.srcUrl || "");
-    word = word.replace('%%TAB-URL%%', tab.url || "");
-    word = word.replace('%%TAB-TITLE%%', tab.title || "");
+    if (context != "navigation") {
+      word = word.replace('%%LINK%%', info.linkUrl || "");
+      word = word.replace('%%SELECTION%%', info.selectionText || "");
+      word = word.replace('%%IMAGE%%', info.srcUrl || "");
+      word = word.replace('%%TAB-URL%%', tab.url || "");
+      word = word.replace('%%TAB-TITLE%%', tab.title || "");
+    } else {
+      word = word.replace('%%LINK%%', evt.url);
+      word = word.replace('%%TAB-ID%%', evt.tabId);
+      word = word.replace('%%PROCESS-ID%%', evt.processId);
+    }
     realAction.push(word);
   });
 
@@ -88,21 +96,46 @@ async function addMenusAndListener(config){
   callbacks = {};
 
   for (var i = 0; i < config.conf.length; i++) {
-    const id = await createMenuItem(config.conf[i]);
-    console.log("Menu item created, id " + id);
     let j = i;
-    callbacks[id] = function(info, tab){
-      actionFunc(config.conf[j].action, config.conf[j].nmhost, config.conf[j].contexts[0], config.conf[j].shell, config.conf[j].wait, info, tab);
+    if (config.conf[i].contexts[0] != "navigation") {
+      // normal menu
+      const id = await createMenuItem(config.conf[i]);
+      console.log("Menu item created, id " + id);
+      callbacks[id] = function(info, tab){
+        actionFunc(config.conf[j].action, config.conf[j].nmhost, config.conf[j].contexts[0], config.conf[j].shell, config.conf[j].wait, info, tab, null);
+      }
+    } else {
+      // navigation listener
+     let navListener = function(evt){
+        // only run on top-level context and not for about: pages
+        if (evt.frameId == 0 && (!evt.url.match(/^(about|moz-extension):/))) {
+          actionFunc(config.conf[j].action, config.conf[j].nmhost, config.conf[j].contexts[0], config.conf[j].shell, config.conf[j].wait, null, null, evt);
+        }
+      }
+      console.log("Adding navigation listener:" + JSON.stringify(config.conf[j].action));
+      var urlFilter = [{urlMatches: ".*"}];
+      if (config.conf[j].targetUrlPatterns.length > 1 ||
+           (config.conf[j].targetUrlPatterns.length == 1 &&
+           config.conf[j].targetUrlPatterns[0] != "<all_urls>")) {
+        urlFilter = [];
+        for (let i = 0; i < config.conf[j].targetUrlPatterns.length; i++) {
+          urlFilter.push({urlMatches: config.conf[j].targetUrlPatterns[i]});
+        }
+      }
+      let filter = { url: urlFilter };
+      console.log("Filter for navigation listener is:" + JSON.stringify(filter));
+      await browser.webNavigation.onCommitted.addListener(navListener, filter);
     }
   }
 
-  listener = function(info, tab) {
-    if (callbacks[info.menuItemId]) {
-      callbacks[info.menuItemId](info, tab);
+  if (Object.keys(callbacks).length > 0) {
+    menuListener = function(info, tab) {
+      if (callbacks[info.menuItemId]) {
+        callbacks[info.menuItemId](info, tab);
+      }
     }
+    await browser.menus.onClicked.addListener(menuListener);
   }
- 
-  await browser.menus.onClicked.addListener(listener);
 
   return 0;
 }

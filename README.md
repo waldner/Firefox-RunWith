@@ -17,7 +17,9 @@ Windows Registry Editor Version 5.00
 @="C:\\path\\to\\runwith.json"
 ```
 
-- Copy [**`runwith.py`**](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.py) somewhere and note down the full path of wherever you put it. **Make it executable (eg, `chmod +x /path/to/runwith.py`)**.
+- Copy [**`runwith.py`**](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.py) somewhere and note down the full path of wherever you put it. **Make it executable (eg, `chmod +x /path/to/runwith.py`)**. **NOTE: the script uses `#!/usr/bin/python` as its interpreter. It turns out that some systems no longer ship that file, and instead have `/usr/bin/python3` or some variation thereof.
+So, if your actions are not being run, this is the first thing to check.** To fix it, you can either edit `runwith.py` to use the correct interpreter, or add a symlink from `/usr/bin/python` to the actual
+interpreter of your system.
 
 - (Windows only) Create the file `runwith.bat` with the following contents:
 

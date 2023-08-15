@@ -4,11 +4,14 @@ Firefox webextension to run external programs on a link or selected text.
 
 ## Getting started
 
-*NOTE: If you're upgrading from v0.14, along with the extension you also need to update `runwith.py` in whatever location you had it (if you were using it in the first place, that is).*
+_NOTE: If you're upgrading from v0.14, along with the extension you also need to update `runwith.py` in whatever location you had it (if you were using it in the first place, that is)._
 
-- Download and install the extension from [https://addons.mozilla.org/en-US/firefox/addon/run-with/](https://addons.mozilla.org/en-US/firefox/addon/run-with/) or from [the releases page](https://github.com/waldner/Firefox-RunWith/releases).
+-   Download and install the extension from the [Addon Store](https://addons.mozilla.org/en-US/firefox/addon/run-with/) or from [the releases page](https://github.com/waldner/Firefox-RunWith/releases).
 
-- Copy or symlink [**`runwith.json`**](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.json)(the **NM manifest**) to the correct [Native Messaging manifest location for your OS](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_manifests); under Linux, you can use `~/.mozilla/native-messaging-hosts/runwith.json`. Under Windows, you mst create a registry key `HKEY_CURRENT_USER\SOFTWARE\Mozilla\NativeMessagingHosts\runwith`, whose value must be a `REG_SZ` containing the path to where you saved **`runwith.json`**. Save the following to a `.reg` file and import it:
+-   Copy or symlink [**`runwith.json`**](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.json) (the NM manifest) to the correct [Native Messaging manifest location for your OS](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_manifests):
+    - On Linux, you can use `~/.mozilla/native-messaging-hosts/runwith.json`.
+    - On MacOS you use `~/Library/Application Support/Mozilla/NativeMessagingHosts/runwith.json`.
+    - On Windows, you mst create a registry key `HKEY_CURRENT_USER\SOFTWARE\Mozilla\NativeMessagingHosts\runwith`, whose value must be a `REG_SZ` containing the path to where you saved **`runwith.json`**. Save the following to a `.reg` file and import it:
 
 ```
 Windows Registry Editor Version 5.00
@@ -17,52 +20,43 @@ Windows Registry Editor Version 5.00
 @="C:\\path\\to\\runwith.json"
 ```
 
-- Copy [**`runwith.py`**](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.py) somewhere and note down the full path of wherever you put it. **Make it executable (eg, `chmod +x /path/to/runwith.py`)**. **NOTE: the script uses `#!/usr/bin/python` as its interpreter. It turns out that some systems no longer ship that file, and instead have `/usr/bin/python3` or some variation thereof.
-So, if your actions are not being run, this is the first thing to check.** To fix it, you can either edit `runwith.py` to use the correct interpreter, or add a symlink from `/usr/bin/python` to the actual
-interpreter of your system.
-
-- (Windows only) Create the file `runwith.bat` with the following contents:
+-   Copy [**`runwith.py`**](https://github.com/waldner/Firefox-RunWith/blob/master/runwith.py) somewhere and note down the full path of wherever you put it. 
+-   Make it executable, ex: `chmod +x /path/to/runwith.py`). 
+ -   **NOTE**: the script uses the Python interpreter `#!/usr/bin/python` which may not work on certain systems. On Linux or Mac you can run `which python` or `which python3` to check the location of Python 3.
+     - Afterwards, paste the location in `runwith.py` after the `#!`.    
+-   **(Windows only)** Create the file `runwith.bat` with the following contents:
 
 ```
 @echo off
-
 python -u "c:\\path\\to\\runwith.py"
-
 ```
 
 (or use `py` if you have the python launcher installed)
 
+-   **Linux and MacOS**: Update the path key in the NM manifest with the actual path to where you put `runwith.py`. 
+    -   Example: `"path": "/path/to/runwith.py",`
 
-- **Linux**: Update the **`path`** key in the **NM manifest** with the actual path to where you put **`runwith.py`**. **Windows**: update the **`path`** key in the **NM manifest** with the actual path to where you put **`runwith.bat`**. Example (Linux):
+-   Windows: update the path key in the **NM manifest** with the actual path to where you put **`runwith.bat`**. 
+    -   Example: `"path": "c:\\path\\to\\runwith.bat",`
 
-```
-  "path": "/path/to/runwith.py",
-```
+-   Configure the plugin by going to the `about:addons` page > Extensions > RunWith > Preferences. See below.
 
-Example (Windows):
+-   Save the configuration.
 
-```
-  "path": "c:\\path\\to\\runwith.bat",
-```
-
-- Configure the plugin by going to `about:addons` -> extensions -> RunWith -> Preferences. See below.
-
-- Save the configuration.
-
-- Right click on a hyperlink, selected text, tab or image and (depending on the actual context) see the RunWith menu with the entries you configured in the previous step.
+-   Right click on a link, selected text, tab or image and (depending on the actual context) see the RunWith menu with the entries you configured in the previous step.
 
 ## Configuration
 
 For each configuration line specify:
 
-- The menu text for the entry (will be shown when you right-click)
-- The NM host to use. Use **`runwith`** unless you know what you're doing.
-- The context in which you want the menu entry to appear: `link`, `selection`, `image`, `editable`, `page`. `page` applies when none of the more-specific ones does.
-- (Optional) The [documentUrlPatterns](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns), comma separated, where you want the menu to be shown; this refers to the document URL, ie the URL you see in the browser's address bar. By default, all URLs are enabled; in match pattern syntax, this means the value is `<all_urls>`.
-- (Optional) The [targetUrlPatterns](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns), comma separated, for which you want the menu to be shown; this applies only to the `link`, `image` and `tab` contexts, and refers to the link target, image source and tab URL respectively. It is ignored for other contexts. By default, all URLs are enabled; in match pattern syntax, this means the value is `<all_urls>`.
-- The actual command you want to run. **Separate words using commas**. Use the following special words to indicate the current link, selected text and image URL respectively: **`%%LINK%%`**, **`%%SELECTION%%`**, **`%%IMAGE%%`** (only the one appropriate for the context). At runtime, the **`%%WORD%%`** will be replaced with the actual link, selection or image URL value. Additionally, the **`%%TAB-URL%%`** and **`%%TAB-TITLE%%`** keywords are available in all contexts, and contain, as their name implies, the current tab's URL and title.
-- Whether to run the command through a shell. This is normally needed only if you have special shell characters in the command (redirections, pipes, etc), and shouldn't be normally required.
-- Whether you want the NM host program to wait for the command to finish or not. Unless you want to run graphical or detached commands, you should check this field. If the context is `editable`, this valued is ignored, as we must always wait for the command to complete to capture the output to send to the editable.
+-   The menu text for the entry (will be shown when you right-click)
+-   The NM host to use. Use **`runwith`** unless you know what you're doing.
+-   The context in which you want the menu entry to appear: `link`, `selection`, `image`, `editable`, `page`. `page` applies when none of the more-specific ones does.
+-   (Optional) The [documentUrlPatterns](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns), comma separated, where you want the menu to be shown; this refers to the document URL, ie the URL you see in the browser's address bar. By default, all URLs are enabled; in match pattern syntax, this means the value is `<all_urls>`.
+-   (Optional) The [targetUrlPatterns](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns), comma separated, for which you want the menu to be shown; this applies only to the `link`, `image` and `tab` contexts, and refers to the link target, image source and tab URL respectively. It is ignored for other contexts. By default, all URLs are enabled; in match pattern syntax, this means the value is `<all_urls>`.
+-   The actual command you want to run. **Separate words using commas**. Use the following special words to indicate the current link, selected text and image URL respectively: **`%%LINK%%`**, **`%%SELECTION%%`**, **`%%IMAGE%%`** (only the one appropriate for the context). At runtime, the **`%%WORD%%`** will be replaced with the actual link, selection or image URL value. Additionally, the **`%%TAB-URL%%`** and **`%%TAB-TITLE%%`** keywords are available in all contexts, and contain, as their name implies, the current tab's URL and title.
+-   Whether to run the command through a shell. This is normally needed only if you have special shell characters in the command (redirections, pipes, etc), and shouldn't be normally required.
+-   Whether you want the NM host program to wait for the command to finish or not. Unless you want to run graphical or detached commands, you should check this field. If the context is `editable`, this valued is ignored, as we must always wait for the command to complete to capture the output to send to the editable.
 
 ### Configuration example
 
@@ -88,6 +82,7 @@ echo "%%TAB-URL%%: --$5--"
 echo "%%TAB-TITLE%%: --$6--"
 echo "------------------------"
 } >> /tmp/output.txt
+
 ```
 
 or, if you want a graphical view, you can do:
@@ -132,7 +127,6 @@ set line=Context: -%context%-, link: -%link%-, selection: -%selection%-, image: 
 if %context% == editable echo OUTPUT FOR EDITABLE FIELD
 
 notify-send.exe "SUMMARY" %line%
-
 ```
 
 Save [test_config.json](https://github.com/waldner/Firefox-RunWith/blob/master/test_config.json) (Linux) or [test_config_win.json](https://github.com/waldner/Firefox-RunWith/blob/master/test_config_win.json), and import it in RunWith configuration.
@@ -155,7 +149,6 @@ WebExtensions provide a mechanism called [Native messaging](https://developer.mo
   "type": "stdio",
   "allowed_extensions": [ "run@runwith.run" ]
 }
-
 ```
 
 The important parts are the **`name`**, which uniquely identifies the NM host, the **`path`**, which points to the program that will be run by the browser to exchange NM messages, and the **`allowed_extensions`** which tells the NM host which extensions are allowed to talk to it (extensions are identified by their ID).
@@ -190,10 +183,8 @@ and in this case `$foo` and `>` are interpreted by the shell. **NOTE**: I have n
 
 If `wait` is false, on the other hand, your program is spawned, but `runwith.py` terminates without waiting for it. This setting is recommended for graphical programs or script where it's not known in advance how long they will run.
 
+## Bugs / Limitations
 
-## Bugs/Limitations
+- Only tested on Firefox under Linux, partially under Windows and MacOS.
 
-Only tested on Firefox under Linux, partially under Windows.
-
-Almost certainly, the code can be improved. JS is really a shi^Wpeculiar language. Suggestions welcome.
-
+- Almost certainly, the code can be improved. JS is really a ~~shit~~ peculiar language. Suggestions welcome.
